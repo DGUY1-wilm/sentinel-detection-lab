@@ -1,0 +1,13 @@
+// Detection: D5 New local user account created
+// ATT&CK: T1136.001 (Persistence - Create Account: Local Account)
+// Data source: SecurityEvent, EventID 4720 (user account created)
+// Hypothesis: unexpected new accounts can be attacker persistence
+// False positives: IT onboarding, imaging tools
+// Tuning: exclude known provisioning accounts in SubjectUserName
+let lookback = 24h;
+SecurityEvent
+| where TimeGenerated > ago(lookback)
+| where EventID == 4720
+| project TimeGenerated, Computer, NewUser = TargetUserName, NewUserSid = TargetSid,
+          CreatedBy = SubjectUserName, CreatedByDomain = SubjectDomainName
+| sort by TimeGenerated desc
