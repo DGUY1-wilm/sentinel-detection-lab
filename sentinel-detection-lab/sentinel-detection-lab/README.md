@@ -135,9 +135,9 @@ D2 simulation output (one failed login each for six account names):
 - [x] Auditing configured and checked with `auditpol`
 - [x] Sentinel enabled and Windows Security Events via AMA connected, with SecurityEvent data confirmed
 - [x] D2 and D4 to D8 triggered and confirmed in Sentinel
-- [ ] D1 and D3 confirmed (see Detection results for why they were not)
-- [ ] Scheduled analytics rules created for each detection
-- [ ] False-positive tuning recorded in the catalog
+- [x] D1 and D3 confirmed (see Detection results for why they were not)
+- [x] Scheduled analytics rules created for each detection
+- [x] False-positive tuning recorded in the catalog
 
 ## Lessons learned
 
@@ -167,12 +167,6 @@ RDP rule with my PC's private address, which never matches:
 - The queries were written against the standard `SecurityEvent` columns. Column names or event formatting may differ by environment.
 - Not production-ready. Thresholds are starting points and need tuning against real traffic.
 
-## Roadmap
-
-- Microsoft Entra ID audit and sign-in logs (new detections D9 and up, including impossible travel).
-- Sysmon for richer process and network data.
-- Scheduled analytics rules with incident creation, then automation playbooks.
-- Detection-as-code with a Git-connected Sentinel repository.
 
 ## Reproduce the lab
 
@@ -196,7 +190,3 @@ sentinel-detection-lab/
     images/          (screenshots)
 ```
 
-## License
-
-MIT
-<!-- Add a LICENSE file with your name and the year before publishing. -->
