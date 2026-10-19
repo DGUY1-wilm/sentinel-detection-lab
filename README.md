@@ -30,6 +30,7 @@ Log Analytics workspace (law-sentinel-lab)
         v
 Microsoft Sentinel  -->  KQL detections (detections/*.kql)
 ```
+![Lab architecture](docs/images/00-architecture.png)
 
 ## Lab environment
 
