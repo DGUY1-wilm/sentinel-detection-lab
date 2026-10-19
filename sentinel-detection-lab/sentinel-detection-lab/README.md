@@ -168,7 +168,4 @@ sentinel-detection-lab/
     images/          (screenshots)
 ```
 
-## License
 
-MIT
-<!-- Add a LICENSE file with your name and the year before publishing. -->
