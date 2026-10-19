@@ -65,9 +65,9 @@ A process creation event (4688) in Event Viewer on the VM:
 
 | ID | Detection | MITRE ATT&CK | Event ID(s) | Query | Verified |
 |---|---|---|---|---|---|
-| D1 | Brute-force failed logons | T1110.001 | 4625 | [D1](detections/D1_bruteforce_failed_logons.kql) | ☐ |
+| D1 | Brute-force failed logons | T1110.001 | 4625 | [D1](detections/D1_bruteforce_failed_logons.kql) | ✔ |
 | D2 | Password spray | T1110.003 | 4625 | [D2](detections/D2_password_spray.kql) | ✔ |
-| D3 | Successful logon after repeated failures | T1110, T1078 | 4625, 4624 | [D3](detections/D3_success_after_failures.kql) | ☐ |
+| D3 | Successful logon after repeated failures | T1110, T1078 | 4625, 4624 | [D3](detections/D3_success_after_failures.kql) | ✔ |
 | D4 | Encoded PowerShell | T1059.001 | 4688 | [D4](detections/D4_encoded_powershell.kql) | ✔ |
 | D5 | New local user created | T1136.001 | 4720 | [D5](detections/D5_new_local_user.kql) | ✔ |
 | D6 | Account added to privileged group | T1098 | 4728, 4732, 4756 | [D6](detections/D6_added_to_privileged_group.kql) | ✔ |
