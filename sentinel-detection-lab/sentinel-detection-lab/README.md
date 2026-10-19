@@ -31,10 +31,6 @@ Log Analytics workspace (law-sentinel-lab)
 Microsoft Sentinel  -->  KQL detections (detections/*.kql)
 ```
 
-> **[IMAGE PLACEHOLDER]** Save an architecture diagram as `docs/images/00-architecture.png`, then delete this line and uncomment the line below.
-
-<!-- ![Lab architecture](docs/images/00-architecture.png) -->
-
 ## Lab environment
 
 | Item | Value |
@@ -46,28 +42,38 @@ Microsoft Sentinel  -->  KQL detections (detections/*.kql)
 | Connector | Windows Security Events via AMA, collecting All Security Events |
 | Auditing | Logon, User Account Management, Security Group Management, Process Creation, Other Object Access Events, plus command-line capture in process creation events |
 
-> **[IMAGE PLACEHOLDER]** Resource group with the workspace and VM. Save as `docs/images/01-resource-group.png`, then uncomment the line below. Blur the subscription ID.
+![VM overview](docs/images/02-vm-overview.png)
 
-<!-- ![Resource group](docs/images/01-resource-group.png) -->
+![Sentinel enabled on the workspace](docs/images/01b-sentinel-enabled.png)
 
-> **[IMAGE PLACEHOLDER]** VM overview page. Save as `docs/images/02-vm-overview.png`. Blur the public IP and subscription ID.
+### Auditing setup
 
-<!-- ![VM overview](docs/images/02-vm-overview.png) -->
+Audit policy commands run on the VM:
+
+![Audit policy commands](docs/images/03a-audit-policy-commands.png)
+
+Resulting audit policy:
+
+<img src="docs/images/03-audit-policy.png" alt="Audit policy output" width="420">
+
+A process creation event (4688) in Event Viewer on the VM:
+
+<img src="docs/images/03b-event-viewer-4688.png" alt="Event 4688 in Event Viewer" width="520">
 
 ## Detections
 
 | ID | Detection | MITRE ATT&CK | Event ID(s) | Query | Verified |
 |---|---|---|---|---|---|
 | D1 | Brute-force failed logons | T1110.001 | 4625 | [D1](detections/D1_bruteforce_failed_logons.kql) | ☐ |
-| D2 | Password spray | T1110.003 | 4625 | [D2](detections/D2_password_spray.kql) | ☐ |
+| D2 | Password spray | T1110.003 | 4625 | [D2](detections/D2_password_spray.kql) | ✔ |
 | D3 | Successful logon after repeated failures | T1110, T1078 | 4625, 4624 | [D3](detections/D3_success_after_failures.kql) | ☐ |
-| D4 | Encoded PowerShell | T1059.001 | 4688 | [D4](detections/D4_encoded_powershell.kql) | ☐ |
-| D5 | New local user created | T1136.001 | 4720 | [D5](detections/D5_new_local_user.kql) | ☐ |
-| D6 | Account added to privileged group | T1098 | 4728, 4732, 4756 | [D6](detections/D6_added_to_privileged_group.kql) | ☐ |
-| D7 | Scheduled task created | T1053.005 | 4698 | [D7](detections/D7_scheduled_task_created.kql) | ☐ |
-| D8 | Security log cleared | T1070.001 | 1102 | [D8](detections/D8_security_log_cleared.kql) | ☐ |
+| D4 | Encoded PowerShell | T1059.001 | 4688 | [D4](detections/D4_encoded_powershell.kql) | ✔ |
+| D5 | New local user created | T1136.001 | 4720 | [D5](detections/D5_new_local_user.kql) | ✔ |
+| D6 | Account added to privileged group | T1098 | 4728, 4732, 4756 | [D6](detections/D6_added_to_privileged_group.kql) | ✔ |
+| D7 | Scheduled task created | T1053.005 | 4698 | [D7](detections/D7_scheduled_task_created.kql) | ✔ |
+| D8 | Security log cleared | T1070.001 | 1102 | [D8](detections/D8_security_log_cleared.kql) | ✔ |
 
-Mark a row with a check once its simulation has been run and the query returned the expected rows.
+D2 and D4 to D8 returned the expected rows in Sentinel. D1 and D3 were not confirmed (see Detection results).
 Details for each detection (hypothesis, logic, false positives, tuning) are in [detection-catalog.md](detection-catalog.md).
 The exact commands used to trigger each one are in [attack-simulation.md](attack-simulation.md).
 
@@ -75,50 +81,61 @@ The exact commands used to trigger each one are in [attack-simulation.md](attack
 
 ### Data arriving in Sentinel
 
-> **[IMAGE PLACEHOLDER]** Data connector page showing it connected. Save as `docs/images/04-data-connector.png`. Blur your email.
+![Event IDs in SecurityEvent](docs/images/05-event-id-chart.png)
 
-<!-- ![Data connector](docs/images/04-data-connector.png) -->
+Sample rows from the `SecurityEvent` table:
 
-> **[IMAGE PLACEHOLDER]** Chart of event IDs returned by the verification query. Save as `docs/images/05-event-id-chart.png`.
-
-<!-- ![Event IDs in SecurityEvent](docs/images/05-event-id-chart.png) -->
+![SecurityEvent sample](docs/images/05a-securityevent-sample.png)
 
 ### Detection results
 
-> **[IMAGE PLACEHOLDER]** D1 brute force results. Save as `docs/images/06-d1-bruteforce.png`.
+**D1 brute force: not confirmed.** The D1 query needs 5 failures per account, but Sentinel recorded only 2 of the 8 simulated failures for `labvictim`, so it returned no rows.
 
-<!-- ![D1 results](docs/images/06-d1-bruteforce.png) -->
+D1 simulation output (failed logins against `labvictim`):
 
-> **[IMAGE PLACEHOLDER]** D2 password spray results. Save as `docs/images/07-d2-spray.png`.
+<img src="docs/images/06a-d1-simulation-output.png" alt="D1 simulation output" width="640">
 
-<!-- ![D2 results](docs/images/07-d2-spray.png) -->
+Failed-logon counts by account. `labvictim` shows only 2 recorded failures:
 
-> **[IMAGE PLACEHOLDER]** D3 success after failures results. Save as `docs/images/08-d3-success-after-failures.png`.
+![D1 failed-logon counts](docs/images/06-d1-bruteforce.png)
 
-<!-- ![D3 results](docs/images/08-d3-success-after-failures.png) -->
+**D2 password spray: confirmed.** One row for 127.0.0.1 with 7 distinct accounts.
 
-> **[IMAGE PLACEHOLDER]** D4 encoded PowerShell results. Save as `docs/images/09-d4-encoded-powershell.png`.
+D2 simulation output (one failed login each for six account names):
 
-<!-- ![D4 results](docs/images/09-d4-encoded-powershell.png) -->
+<img src="docs/images/07a-d2-simulation-output.png" alt="D2 simulation output" width="640">
 
-> **[IMAGE PLACEHOLDER]** D5 and D6 results (new user, added to Administrators). Save as `docs/images/10-d5-d6-account-changes.png`.
+![D2 results](docs/images/07-d2-spray.png)
 
-<!-- ![D5 and D6 results](docs/images/10-d5-d6-account-changes.png) -->
+**D3 success after failures: not confirmed.** The final login used the literal placeholder text as the password, so it failed with system error 1326 and no successful logon followed the failures.
 
-> **[IMAGE PLACEHOLDER]** D7 scheduled task results. Save as `docs/images/11-d7-scheduled-task.png`.
+**D4 encoded PowerShell: confirmed.** One 4688 event with the encoded command line captured.
 
-<!-- ![D7 results](docs/images/11-d7-scheduled-task.png) -->
+<img src="docs/images/09a-d4-simulation-output.png" alt="D4 simulation output" width="640">
 
-> **[IMAGE PLACEHOLDER]** D8 log cleared results. Save as `docs/images/12-d8-log-cleared.png`.
+![D4 results](docs/images/09-d4-encoded-powershell.png)
 
-<!-- ![D8 results](docs/images/12-d8-log-cleared.png) -->
+**D5 new local user and D6 added to Administrators: confirmed.** Each query returned the expected events.
+
+<img src="docs/images/10a-d5-d6-simulation-output.png" alt="D5 and D6 simulation output" width="640">
+
+**D7 scheduled task created: confirmed.** One 4698 event for `\LabTestTask`.
+
+<img src="docs/images/11a-d7-simulation-output.png" alt="D7 simulation output" width="640">
+
+![D7 results](docs/images/11-d7-scheduled-task.png)
+
+**D8 security log cleared: confirmed.** One 1102 event at the time the log was cleared.
+
+![D8 results](docs/images/12-d8-log-cleared.png)
 
 ## Project status
 
 - [x] Azure lab built (resource group, workspace, Windows Server VM)
 - [x] Auditing configured and checked with `auditpol`
 - [x] Sentinel enabled and Windows Security Events via AMA connected, with SecurityEvent data confirmed
-- [ ] D1 to D8 each triggered and confirmed (update the Verified column above)
+- [x] D2 and D4 to D8 triggered and confirmed in Sentinel
+- [ ] D1 and D3 confirmed (see Detection results for why they were not)
 - [ ] Scheduled analytics rules created for each detection
 - [ ] False-positive tuning recorded in the catalog
 
@@ -130,7 +147,18 @@ The exact commands used to trigger each one are in [attack-simulation.md](attack
 - **Default auditing is not enough.** Scheduled task creation, process command lines, and account changes need audit policies turned on. I confirmed them with `auditpol` and enabled command-line capture in Group Policy.
 - **Logs page details.** The Logs page opens in Simple mode, so KQL mode has to be selected. Queries also fail if the `let` lines at the top are left out when pasting.
 - **Repeated identical failures were under-counted.** Eight identical failed logins against one account produced only 2 recorded failures, while single failures against six different accounts were all recorded. D1 may need distinct passwords or a short pause between attempts.
+- **D3 needs a real successful login.** My success step used the placeholder text as the password, so no successful logon was recorded after the failures.
 - **Windows creates its own scheduled tasks.** Event 4702 (task updated) appeared without any action from me, which suggests D7 will need an allowlist.
+
+### Screenshots from troubleshooting
+
+Azure policy rejecting the East US deployments:
+
+![Activity log showing denied policy actions](docs/images/lesson-region-policy-denied.png)
+
+RDP rule with my PC's private address, which never matches:
+
+<img src="docs/images/lesson-nsg-private-ip.png" alt="RDP rule with a private IP" width="320">
 
 ## Known limitations
 
@@ -168,4 +196,7 @@ sentinel-detection-lab/
     images/          (screenshots)
 ```
 
+## License
 
+MIT
+<!-- Add a LICENSE file with your name and the year before publishing. -->
